@@ -1,0 +1,6 @@
+#event_simpleName=ProcessRollup2
+| FileName=/powershell\.exe/i
+| CommandLine=/.*(Invoke-WebRequest|UploadFile|WebClient|PutFile|Post).*/i
+// Filter out legitimate Windows/Microsoft traffic to reduce false positives
+| CommandLine!=/.*(windowsupdate|microsoft\.com).*/i
+| select([@timestamp, ComputerName, UserName, CommandLine])

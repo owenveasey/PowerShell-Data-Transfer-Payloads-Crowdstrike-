@@ -1,0 +1,4 @@
+#event_simpleName=ProcessRollup2
+| FileName=/powershell\.exe/i
+| CommandLine=/.*(Invoke-WebRequest|UploadFile|WebClient|PutFile|Post).*/i
+| select([@timestamp, ComputerName, UserName, CommandLine])

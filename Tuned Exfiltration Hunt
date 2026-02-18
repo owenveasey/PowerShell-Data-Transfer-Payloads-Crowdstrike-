@@ -1,0 +1,17 @@
+#event_simpleName=ProcessRollup2
+| FileName=/powershell\.exe/i
+| CommandLine=/.*(Invoke-WebRequest|UploadFile|WebClient|PutFile|Post).*/i
+
+// --- NOISE FILTERING ---
+// 1. Filter out Microsoft/Windows Update noise
+| CommandLine!=/.*(windowsupdate|microsoft\.com).*/i
+// 2. Filter out the Postilion automated export script
+| CommandLine!=/.*ExportCount_EventID_10087\.ps1.*/i
+// 3. Filter out Pango IP checks
+| CommandLine!=/.*ipinfo\.pango\.co.*/i
+// 4. Filter out Slack connectivity error reporting
+| CommandLine!=/.*slackb\.com\/error.*/i
+
+// Aggregate to collapse duplicates (Saves your eyes from repeating rows)
+| groupBy([ComputerName, UserName, CommandLine], function=([count(aid, as=ExecutionCount), min(@timestamp, as=FirstSeen), max(@timestamp, as=LastSeen)]))
+| sort(LastSeen, order=desc)
